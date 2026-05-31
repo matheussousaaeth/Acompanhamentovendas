@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Equipe — Maio 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --surface: #111318;
+    --surface2: #181c24;
+    --border: rgba(255,255,255,0.07);
+    --accent: #00e5a0;
+    --accent2: #ff6b35;
+    --accent3: #7c6df5;
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #f59e0b;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 10% 0%, rgba(0,229,160,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 90% 100%, rgba(124,109,245,0.06) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container { max-width: 1400px; margin: 0 auto; padding: 0 2rem; position: relative; z-index: 1; }
+
+  /* Header */
+  header {
+    padding: 2.5rem 0 1.5rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2rem;
+  }
+  .header-inner {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .header-title { font-family: 'Syne', sans-serif; }
+  .header-tag {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+  h1 {
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: var(--text);
+  }
+  h1 span { color: var(--accent); }
+  .header-meta {
+    text-align: right;
+    font-size: 0.75rem;
+    color: var(--muted);
+    line-height: 1.8;
+  }
+  .live-dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin-right: 6px;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* KPI Cards */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem 1.6rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+    animation: fadeUp 0.5s ease both;
+  }
+  .kpi-card:hover {
+    border-color: rgba(0,229,160,0.25);
+    transform: translateY(-2px);
+  }
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--kpi-color, var(--accent));
+  }
+  .kpi-label {
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.6rem;
+  }
+  .kpi-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--text);
+  }
+  .kpi-sub {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 0.4rem;
+  }
+  .kpi-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    padding: 2px 7px;
+    border-radius: 99px;
+    margin-top: 0.5rem;
+  }
+  .kpi-badge.up { background: rgba(34,197,94,0.12); color: var(--green); }
+  .kpi-badge.down { background: rgba(239,68,68,0.12); color: var(--red); }
+  .kpi-badge.neutral { background: rgba(245,158,11,0.12); color: var(--yellow); }
+
+  /* Section title */
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* Main layout */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  @media (max-width: 1100px) {
+    .main-grid { grid-template-columns: 1fr; }
+  }
+
+  /* Panel */
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.6rem;
+    animation: fadeUp 0.6s ease both;
+  }
+  .panel-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    margin-bottom: 1.2rem;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .panel-title .badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    font-weight: 400;
+    color: var(--muted);
+    background: var(--surface2);
+    padding: 2px 10px;
+    border-radius: 99px;
+  }
+
+  /* Vendedor bars */
+  .vendedor-list { display: flex; flex-direction: column; gap: 0.9rem; }
+  .vendedor-item {}
+  .vendedor-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.4rem;
+  }
+  .vendedor-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .avatar {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    font-weight: 700;
+    font-family: 'Syne', sans-serif;
+    flex-shrink: 0;
+  }
+  .vendedor-stats {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+  .vendedor-stats strong { color: var(--text); }
+  .bar-track {
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 1s cubic-bezier(0.22, 1, 0.36, 1);
+    position: relative;
+  }
+  .bar-fill::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    width: 20px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3));
+  }
+  .meta-line {
+    position: relative;
+    height: 6px;
+    margin-top: -6px;
+  }
+  .meta-marker {
+    position: absolute;
+    top: -3px;
+    width: 2px;
+    height: 12px;
+    background: var(--muted);
+    border-radius: 1px;
+    opacity: 0.5;
+  }
+
+  /* Planos chart */
+  .donut-container {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  svg.donut { flex-shrink: 0; }
+  .donut-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    flex: 1;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.75rem;
+  }
+  .legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .legend-label { color: var(--muted); flex: 1; }
+  .legend-val { font-weight: 500; color: var(--text); }
+  .legend-pct { color: var(--muted); font-size: 0.67rem; }
+
+  /* Contratos */
+  .contrato-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.7rem;
+    margin-bottom: 1rem;
+  }
+  .contrato-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.9rem 1rem;
+    text-align: center;
+  }
+  .contrato-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+  }
+  .contrato-label { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
+
+  /* Timeline / transactions */
+  .tx-list { display: flex; flex-direction: column; gap: 0; }
+  .tx-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.75rem;
+    transition: background 0.15s;
+    cursor: default;
+  }
+  .tx-item:last-child { border-bottom: none; }
+  .tx-item:hover { background: rgba(255,255,255,0.02); margin: 0 -1rem; padding-left: 1rem; padding-right: 1rem; }
+  .tx-dot {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    font-weight: 700;
+    font-family: 'Syne', sans-serif;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .tx-info { flex: 1; min-width: 0; }
+  .tx-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 2px;
+  }
+  .tx-meta { color: var(--muted); font-size: 0.67rem; }
+  .tx-right { text-align: right; flex-shrink: 0; }
+  .tx-value { font-weight: 500; font-size: 0.78rem; color: var(--text); }
+  .tx-plano {
+    font-size: 0.62rem;
+    padding: 1px 6px;
+    border-radius: 99px;
+    margin-top: 2px;
+    display: inline-block;
+  }
+
+  /* Progress metas */
+  .meta-panel {}
+  .meta-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    margin-bottom: 1rem;
+  }
+  .meta-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.72rem;
+  }
+  .meta-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .meta-values { color: var(--muted); }
+  .meta-values strong { color: var(--text); }
+  .progress-track {
+    height: 8px;
+    background: var(--surface2);
+    border-radius: 99px;
+    overflow: hidden;
+    position: relative;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 99px;
+    position: relative;
+    transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .progress-fill.over {
+    background: linear-gradient(90deg, var(--green), #86efac) !important;
+  }
+  .pct-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    margin-left: auto;
+    padding: 1px 6px;
+    border-radius: 99px;
+  }
+  .pct-badge.over { background: rgba(34,197,94,0.15); color: var(--green); }
+  .pct-badge.under { background: rgba(239,68,68,0.15); color: var(--red); }
+  .pct-badge.near { background: rgba(245,158,11,0.15); color: var(--yellow); }
+
+  /* Bottom grid */
+  .bottom-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  @media (max-width: 900px) {
+    .bottom-grid { grid-template-columns: 1fr; }
+  }
+
+  /* Histórico mensal */
+  .bar-chart { display: flex; align-items: flex-end; gap: 6px; height: 100px; padding-bottom: 1.5rem; position: relative; }
+  .bar-chart::after {
+    content: '';
+    position: absolute;
+    bottom: 1.5rem; left: 0; right: 0;
+    height: 1px;
+    background: var(--border);
+  }
+  .month-bar { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .month-col {
+    width: 100%;
+    border-radius: 4px 4px 0 0;
+    position: relative;
+    transition: opacity 0.2s;
+    min-height: 4px;
+  }
+  .month-col:hover { opacity: 0.8; }
+  .month-label {
+    font-size: 0.6rem;
+    color: var(--muted);
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  /* Assinaturas inbound */
+  .inbound-table { width: 100%; border-collapse: collapse; font-size: 0.72rem; }
+  .inbound-table th {
+    text-align: left;
+    padding: 0 0 0.6rem;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    font-weight: 400;
+  }
+  .inbound-table td {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    vertical-align: middle;
+  }
+  .inbound-table tr:last-child td { border-bottom: none; }
+
+  /* Tag chips */
+  .chip {
+    font-size: 0.62rem;
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-weight: 500;
+  }
+  .chip.starter { background: rgba(0,229,160,0.1); color: var(--accent); }
+  .chip.oficial { background: rgba(124,109,245,0.1); color: #a78bfa; }
+  .chip.disparo { background: rgba(245,158,11,0.1); color: var(--yellow); }
+
+  /* Footer */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 1.5rem 0;
+    text-align: center;
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Filter tabs */
+  .filter-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .filter-tab {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    padding: 5px 14px;
+    border-radius: 99px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .filter-tab:hover { border-color: rgba(0,229,160,0.3); color: var(--text); }
+  .filter-tab.active { background: var(--accent); border-color: var(--accent); color: #000; font-weight: 500; }
+
+  /* Search */
+  .search-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.5rem 0.9rem;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    outline: none;
+    width: 240px;
+    transition: border-color 0.2s;
+  }
+  .search-box::placeholder { color: var(--muted); }
+  .search-box:focus { border-color: rgba(0,229,160,0.4); }
+
+  .toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Header -->
+  <header>
+    <div class="header-inner">
+      <div class="header-title">
+        <div class="header-tag">Acompanhamento Equipe</div>
+        <h1>Dashboard <span>Vendas</span></h1>
+      </div>
+      <div class="header-meta">
+        <div><span class="live-dot"></span>Maio 2026</div>
+        <div>Equipe Inside Sales</div>
+        <div>Atualizado em 30/05/2026</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- KPIs -->
+  <div class="kpi-grid">
+    <div class="kpi-card" style="--kpi-color: var(--accent)">
+      <div class="kpi-label">Total Realizado (Equipe)</div>
+      <div class="kpi-value">R$ 177K</div>
+      <div class="kpi-sub">Meta: R$ 172.500</div>
+      <div class="kpi-badge up">↑ 102,7% da meta</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color: var(--accent3)">
+      <div class="kpi-label">Assinaturas no Mês</div>
+      <div class="kpi-value">100</div>
+      <div class="kpi-sub">Registros maio/2026</div>
+      <div class="kpi-badge neutral">↗ Mês em andamento</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color: var(--accent2)">
+      <div class="kpi-label">Projeção do Mês</div>
+      <div class="kpi-value">R$ 191K</div>
+      <div class="kpi-sub">R$ 191.167 projetado</div>
+      <div class="kpi-badge up">↑ 110,8% da meta</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color: #7c6df5">
+      <div class="kpi-label">Novos Assinantes</div>
+      <div class="kpi-value">121</div>
+      <div class="kpi-sub">Total de instâncias</div>
+      <div class="kpi-badge neutral">→ Acumulado</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color: #f59e0b">
+      <div class="kpi-label">Ticket Médio</div>
+      <div class="kpi-value">R$ 1.050</div>
+      <div class="kpi-sub">Estimativa do mês</div>
+      <div class="kpi-badge up">↑ Ciclo anual forte</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color: #22c55e">
+      <div class="kpi-label">Contratos Assinados</div>
+      <div class="kpi-value">52</div>
+      <div class="kpi-sub">Status: Assinado</div>
+      <div class="kpi-badge up">↑ Alta conversão</div>
+    </div>
+  </div>
+
+  <!-- Main grid -->
+  <div class="main-grid">
+
+    <!-- Left: Metas por vendedor -->
+    <div class="panel" style="animation-delay:0.1s">
+      <div class="panel-title">
+        Metas por Vendedor — Maio 2026
+        <span class="badge">Inside Sales</span>
+      </div>
+
+      <div class="vendedor-list" id="metaList"></div>
+    </div>
+
+    <!-- Right: Planos + Contratos -->
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+
+      <!-- Planos -->
+      <div class="panel" style="animation-delay:0.15s">
+        <div class="panel-title">Distribuição de Planos</div>
+        <div class="donut-container" id="donutArea"></div>
+      </div>
+
+      <!-- Contratos -->
+      <div class="panel" style="animation-delay:0.2s">
+        <div class="panel-title">Status dos Contratos</div>
+        <div class="contrato-grid">
+          <div class="contrato-card">
+            <div class="contrato-num" style="color:var(--green)">52</div>
+            <div class="contrato-label">Assinados</div>
+          </div>
+          <div class="contrato-card">
+            <div class="contrato-num" style="color:var(--yellow)">22</div>
+            <div class="contrato-label">Enviados</div>
+          </div>
+          <div class="contrato-card">
+            <div class="contrato-num" style="color:var(--muted)">26</div>
+            <div class="contrato-label">Pendentes</div>
+          </div>
+        </div>
+        <div style="font-size:0.68rem; color:var(--muted); text-align:center; padding-top:0.3rem;">
+          Total de 100 registros analisados
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Bottom grid -->
+  <div class="bottom-grid">
+
+    <!-- Histórico mensal -->
+    <div class="panel" style="animation-delay:0.25s">
+      <div class="panel-title">Histórico 2026</div>
+      <div class="bar-chart" id="barChart"></div>
+      <div style="font-size:0.65rem; color:var(--muted); margin-top:0.5rem; text-align:center;">
+        Dados consolidados por vendedor (Jan–Abr com histórico, Mai em curso)
+      </div>
+    </div>
+
+    <!-- Assinaturas por tipo -->
+    <div class="panel" style="animation-delay:0.3s">
+      <div class="panel-title">Assinaturas por Tipo</div>
+      <table class="inbound-table">
+        <thead>
+          <tr>
+            <th>Assinatura</th>
+            <th style="text-align:right">Qtd</th>
+            <th style="text-align:right">%</th>
+          </tr>
+        </thead>
+        <tbody id="tipoTable"></tbody>
+      </table>
+      <div style="margin-top:1.2rem;">
+        <div style="font-size:0.65rem; color:var(--muted); margin-bottom:0.6rem; text-transform:uppercase; letter-spacing:0.1em;">Ranking de Premiação</div>
+        <div style="display:flex; flex-direction:column; gap:0.4rem;" id="premioList"></div>
+      </div>
+    </div>
+
+    <!-- Últimas vendas -->
+    <div class="panel" style="animation-delay:0.35s">
+      <div class="panel-title">
+        Últimas Vendas
+        <span class="badge" id="txCount">—</span>
+      </div>
+      <div class="toolbar">
+        <div class="filter-tabs" id="filterTabs">
+          <button class="filter-tab active" data-filter="all">Todos</button>
+          <button class="filter-tab" data-filter="STARTER">Starter</button>
+          <button class="filter-tab" data-filter="OFICIAL">Oficial</button>
+          <button class="filter-tab" data-filter="DISPARO">Disparo</button>
+        </div>
+      </div>
+      <div class="tx-list" id="txList"></div>
+    </div>
+
+  </div>
+
+  <footer>
+    <strong style="color:var(--text)">ACOMPANHAMENTO EQUIPE 2025/2026</strong> — Dashboard gerado automaticamente a partir dos dados da planilha · Maio 2026
+  </footer>
+
+</div>
+
+<script>
+// ===================== DATA =====================
+const vendas = [
+  { vendedor: 'Victor Ferreira', empresa: 'DENTAL TONET', valor: 299, plano: 'MENSAL', tipo: 'STARTER', contrato: '', data: '04/05/2026' },
+  { vendedor: 'Pamela Silva', empresa: 'joaofelipeat@gmail.com', valor: 700, plano: 'CRÉDITO AVULSO', tipo: 'DISPARO', contrato: '', data: '04/05/2026' },
+  { vendedor: 'Taynara Cristy', empresa: 'SERGILUZ MANUTENCAO', valor: 598, plano: 'MENSAL', tipo: 'STARTER', contrato: 'ASSINADO', data: '04/05/2026' },
+  { vendedor: 'Debora Gabriela', empresa: 'Gabriela Demarco', valor: 350, plano: 'MENSAL', tipo: 'DISPARO', contrato: '', data: '04/05/2026' },
+  { vendedor: 'Victor Alves', empresa: 'LUIZ CASSIO COSTA MELO', valor: 807.30, plano: 'TRIMESTRAL', tipo: 'STARTER', contrato: 'ASSINADO', data: '04/05/2026' },
+  { vendedor: 'Debora Gabriela', empresa: 'RODRIGO STAMM SILVEIRA', valor: 549.24, plano: 'TRIMESTRAL', tipo: 'STARTER', contrato: 'ASSINADO', data: '05/05/2026' },
+  { vendedor: 'Victor Ferreira', empresa: 'M-TECH CONSULTANCY', valor: 446, plano: 'MENSAL', tipo: 'STARTER', contrato: '', data: '05/05/2026' },
+  { vendedor: 'Victor Alves', empresa: 'SM TRAVEL', valor: 499, plano: 'MENSAL', tipo: 'OFICIAL', contrato: 'ASSINADO', data: '05/05/2026' },
+  { vendedor: 'Steffany Martins', empresa: 'FAST COMERCIO AUTO PECAS', valor: 1017.90, plano: 'TRIMESTRAL', tipo: 'STARTER', contrato: 'ASSINADO', data: '05/05/2026' },
+  { vendedor: 'Taynara Cristy', empresa: 'PAMELA ALEXANDRE ARQUITETURA', valor: 299, plano: 'MENSAL', tipo: 'STARTER', contrato: 'ASSINADO', data: '05/05/2026' },
+  { vendedor: 'Steffany Martins', empresa: 'BELARA SAUDE OCUPACIONAL', valor: 1524.30, plano: 'SEMESTRAL', tipo: 'STARTER', contrato: 'ASSINADO', data: '05/05/2026' },
+  { vendedor: 'Taynara Cristy', empresa: 'INTERNATIONAL PUMP ALLIANCE', valor: 4049.40, plano: 'ANUAL', tipo: 'STARTER', contrato: 'ASSINADO', data: '06/05/2026' },
+  { vendedor: 'Debora Gabriela', empresa: 'SAVVY ASSESSORIA CONTABIL', valor: 2870.60, plano: 'ANUAL', tipo: 'STARTER', contrato: 'ASSINADO', data: '06/05/2026' },
+  { vendedor: 'Taynara Cristy', empresa: 'VOLPI & REGALADO ODONTOLOGICO', valor: 1668.42, plano: 'SEMESTRAL', tipo: 'STARTER', contrato: 'ASSINADO', data: '06/05/2026' },
+  { vendedor: 'Steffany Martins', empresa: 'IMOBILIARIA DELTA', valor: 299, plano: 'MENSAL', tipo: 'STARTER', contrato: 'ENVIADO', data: '06/05/2026' },
+  { vendedor: 'Victor Ferreira', empresa: 'AGAPLASTIC INDUSTRIA', valor: 789, plano: 'MENSAL', tipo: 'STARTER', contrato: 'ASSINADO', data: '06/05/2026' },
+  { vendedor: 'Victor Alves', empresa: 'FECOMERCIO/DF', valor: 1707.15, plano: 'TRIMESTRAL', tipo: 'OFICIAL', contrato: 'ASSINADO', data: '06/05/2026' },
+  { vendedor: 'Debora Gabriela', empresa: 'GOLFINHOS ACADEMIA', valor: 1707.15, plano: 'TRIMESTRAL', tipo: 'OFICIAL', contrato: 'ENVIADO', data: '06/05/2026' },
+  { vendedor: 'Steffany Martins', empresa: 'LOWBANK SHOES', valor: 1204.20, plano: 'TRIMESTRAL', tipo: 'STARTER', contrato: 'ENVIADO', data: '06/05/2026' },
+  { vendedor: 'Victor Ferreira', empresa: 'J.R. BEBIDAS', valor: 3340.80, plano: 'ANUAL', tipo: 'STARTER', contrato: 'ASSINADO', data: '07/05/2026' },
+  { vendedor: 'Debora Gabriela', empresa: 'NEMORA GIMENES MASCHIETTO', valor: 852.15, plano: 'TRIMESTRAL', tipo: 'STARTER', contrato: 'ASSINADO', data: '07/05/2026' },
+  { vendedor: 'Victor Alves', empresa: 'WE Investimentos Imobiliários', valor: 199, plano: 'MENSAL', tipo: 'DISPARO', contrato: '', data: '07/05/2026' },
+  { vendedor: 'Debora Gabriela', empresa: 'ATHEON CONTABILIDADE', valor: 499, plano: 'MENSAL', tipo: 'OFICIAL', contrato: 'ASSINADO', data: '08/05/2026' },
+  { vendedor: 'Pamela Silva', empresa: 'LATAM INFOPRODUTORA', valor: 299, plano: 'MENSAL', tipo: 'STARTER', contrato: 'ENVIADO', data: '08/05/2026' },
+  { vendedor: 'Victor Ferreira', empresa: 'NACIONAL SAUDE CORPORATIVO', valor: 1846.80, plano: 'TRIMESTRAL', tipo: 'OFICIAL', contrato: 'ENVIADO', data: '08/05/2026' },
+  { vendedor: 'Victor Alves', empresa: 'SYNAPSE ROBOTICS', valor: 299, plano: 'MENSAL', tipo: 'STARTER', contrato: 'ENVIADO', data: '08/05/2026' },
+  { vendedor: 'Victor Alves', empresa: 'DRYENGE SISTEMAS', valor: 599, plano: 'MENSAL', tipo: 'OFICIAL', contrato: 'ASSINADO', data: '11/05/2026' },
+  { vendedor: 'Debora Gabriela', empresa: 'TAIANA PRATES MOTTA FECKER', valor: 2000, plano: 'ANUAL', tipo: 'STARTER', contrato: 'ASSINADO', data: '11/05/2026' },
+  { vendedor: 'Victor Ferreira', empresa: 'TR FREITAS EVENTOS', valor: 299, plano: 'MENSAL', tipo: 'STARTER', contrato: 'ASSINADO', data: '11/05/2026' },
+  { vendedor: 'Maria Laura', empresa: 'MAXIMUS IMOBILIARIA', valor: 1336.50, plano: 'TRIMESTRAL', tipo: 'STARTER', contrato: 'ENVIADO', data: '11/05/2026' },
+  { vendedor: 'Taynara Cristy', empresa: 'REALIZA ASSESSORIA CONTABIL', valor: 299, plano: 'MENSAL', tipo: 'STARTER', contrato: 'ENVIADO', data: '12/05/2026' },
+  { vendedor: 'Debora Gabriela', empresa: 'EVERTON MORANDINI', valor: 852.15, plano: 'TRIMESTRAL', tipo: 'STARTER', contrato: 'ENVIADO', data: '12/05/2026' },
+  { vendedor: 'Victor Alves', empresa: 'CONVENIENCIA COSMETICOS', valor: 1910.40, plano: 'ANUAL', tipo: 'STARTER', contrato: 'ENVIADO', data: '12/05/2026' },
+  { vendedor: 'Steffany Martins', empresa: 'INNOVARE CURSOS INFORMATICA', valor: 807.10, plano: 'TRIMESTRAL', tipo: 'STARTER', contrato: 'ENVIADO', data: '12/05/2026' },
+  { vendedor: 'Taynara Cristy', empresa: 'R F SOLUCOES GRAFICAS', valor: 3200, plano: 'ANUAL', tipo: 'STARTER', contrato: 'ENVIADO', data: '12/05/2026' },
+  { vendedor: 'Victor Alves', empresa: 'FX CAPITAL E SECURITIZACOES', valor: 544, plano: 'MENSAL', tipo: 'STARTER', contrato: 'ENVIADO', data: '13/05/2026' },
+  { vendedor: 'Taynara Cristy', empresa: 'C. I. SAINT LOUIS', valor: 446, plano: 'MENSAL', tipo: 'STARTER', contrato: 'ASSINADO', data: '13/05/2026' },
+  { vendedor: 'Taynara Cristy', empresa: 'CDVAC CLINICA MEDICA', valor: 299, plano: 'MENSAL', tipo: 'STARTER', contrato: 'ASSINADO', data: '13/05/2026' },
+  { vendedor: 'Taynara Cristy', empresa: 'TB CAKE CONFEITARIA', valor: 870.09, plano: 'TRIMESTRAL', tipo: 'STARTER', contrato: 'ASSINADO', data: '13/05/2026' },
+  { vendedor: 'Debora Gabriela', empresa: 'ATACADO DE ILUMINACAO LED', valor: 599, plano: 'MENSAL', tipo: 'OFICIAL', contrato: 'ASSINADO', data: '13/05/2026' },
+  { vendedor: 'Victor Ferreira', empresa: 'GR TECH SOLUCOES', valor: 549.24, plano: 'TRIMESTRAL', tipo: 'STARTER', contrato: '', data: '13/05/2026' },
+  { vendedor: 'Victor Ferreira', empresa: 'DIAMOND CONSTRUTORA', valor: 3869.40, plano: 'ANUAL', tipo: 'STARTER', contrato: 'ASSINADO', data: '13/05/2026' },
+  { vendedor: 'Victor Alves', empresa: 'PAULO CESAR CARDOSO DOS SANTOS', valor: 350, plano: 'CRÉDITO AVULSO', tipo: 'DISPARO', contrato: '', data: '13/05/2026' },
+  { vendedor: 'Victor Alves', empresa: 'CONTRATE SOLUCOES', valor: 2870.40, plano: 'ANUAL', tipo: 'STARTER', contrato: 'ASSINADO', data: '14/05/2026' },
+  { vendedor: 'Victor Alves', empresa: 'ORISA TECNOLOGIA BELEZA', valor: 2870.40, plano: 'ANUAL', tipo: 'STARTER', contrato: '', data: '14/05/2026' },
+  { vendedor: 'Debora Gabriela', empresa: 'BORFIX RECICLAGEM', valor: 2907.09, plano: 'TRIMESTRAL', tipo: 'OFICIAL', contrato: 'ASSINADO', data: '14/05/2026' },
+  { vendedor: 'Victor Ferreira', empresa: 'XMOVE CENTRO DE TREINAMENTO', valor: 2149.20, plano: 'ANUAL', tipo: 'STARTER', contrato: 'ASSINADO', data: '14/05/2026' },
+  { vendedor: 'Victor Alves', empresa: 'GOMES PRESTACAO FITNESS', valor: 1952.15, plano: 'TRIMESTRAL', tipo: 'OFICIAL', contrato: '', data: '14/05/2026' },
+  { vendedor: 'Victor Ferreira', empresa: 'BELA NOIVA CONFECCOES', valor: 599, plano: 'MENSAL', tipo: 'OFICIAL', contrato: 'ENVIADO', data: '14/05/2026' },
+  { vendedor: 'Steffany Martins', empresa: 'MUNICIPIO DE CUITE DE MAMANGUAPE', valor: 6469.20, plano: 'ANUAL', tipo: 'OFICIAL', contrato: 'ASSINADO', data: '14/05/2026' },
+  { vendedor: 'Pamela Silva', empresa: 'MASTI SERVICOS E TREINAMENTOS', valor: 537, plano: 'TRIMESTRAL', tipo: 'STARTER', contrato: 'ASSINADO', data: '14/05/2026' },
+  { vendedor: 'Victor Ferreira', empresa: 'PROMOVA CO PROMOCOES', valor: 455, plano: 'MENSAL', tipo: 'STARTER', contrato: '', data: '15/05/2026' },
+  { vendedor: 'Victor Ferreira', empresa: 'BARBIER SERVICOS DE ESTETICA', valor: 398, plano: 'MENSAL', tipo: 'STARTER', contrato: '', data: '15/05/2026' },
+  { vendedor: 'Victor Alves', empresa: 'ASSOCIACAO JATAIENSE EDUCACAO', valor: 299, plano: 'MENSAL', tipo: 'STARTER', contrato: '', data: '15/05/2026' },
+  { vendedor: 'Victor Alves', empresa: 'Clinica Radiologica L. Virmond', valor: 2907.09, plano: 'TRIMESTRAL', tipo: 'OFICIAL', contrato: 'ASSINADO', data: '15/05/2026' },
+  { vendedor: 'Victor Alves', empresa: 'Araujo Sindicos Profissionais', valor: 5089.80, plano: 'ANUAL', tipo: 'OFICIAL', contrato: 'ASSINADO', data: '15/05/2026' },
+  { vendedor: 'Taynara Cristy', empresa: 'SIFAZ SISTEMA FUNERAL', valor: 3549.60, plano: 'ANUAL', tipo: 'STARTER', contrato: 'ENVIADO', data: '15/05/2026' },
+  { vendedor: 'Debora Gabriela', empresa: 'T. Muller Servicos Contabeis', valor: 397, plano: 'MENSAL', tipo: 'STARTER', contrato: 'ENVIADO', data: '15/05/2026' },
+  { vendedor: 'Victor Ferreira', empresa: 'LITORAL PRESTACAO SERVICOS', valor: 807.30, plano: 'TRIMESTRAL', tipo: 'STARTER', contrato: '', data: '15/05/2026' },
+  { vendedor: 'Victor Ferreira', empresa: 'ANDEPE AGENCIA PESQUISA', valor: 1049, plano: 'MENSAL', tipo: 'OFICIAL', contrato: 'ENVIADO', data: '18/05/2026' },
+  { vendedor: 'Taynara Cristy', empresa: 'PLANO INFORMATICA', valor: 5835.12, plano: 'ANUAL', tipo: 'STARTER', contrato: 'ASSINADO', data: '18/05/2026' },
+  { vendedor: 'Pamela Silva', empresa: 'Lucas Rafael Soares', valor: 199, plano: 'MENSAL', tipo: 'DISPARO', contrato: '', data: '18/05/2026' },
+  { vendedor: 'Steffany Martins', empresa: 'INNOVARE CURSOS AVANCADOS', valor: 807.30, plano: 'TRIMESTRAL', tipo: 'STARTER', contrato: '', data: '18/05/2026' },
+  { vendedor: 'Pamela Silva', empresa: 'Ai pede Delivery', valor: 150, plano: 'CRÉDITO AVULSO', tipo: 'DISPARO', contrato: '', data: '18/05/2026' },
+  { vendedor: 'Victor Ferreira', empresa: 'TIME.CON CONTABILIDADE', valor: 2870.40, plano: 'ANUAL', tipo: 'STARTER', contrato: '', data: '18/05/2026' },
+  { vendedor: 'Maria Laura', empresa: 'COSTACURTA E COSTA CLINICA', valor: 1614.60, plano: 'SEMESTRAL', tipo: 'STARTER', contrato: 'ASSINADO', data: '18/05/2026' },
+  { vendedor: 'Debora Gabriela', empresa: 'Mario Stoppa Junior', valor: 199, plano: 'MENSAL', tipo: 'DISPARO', contrato: '', data: '18/05/2026' },
+  { vendedor: 'Taynara Cristy', empresa: 'MINASLABBRASIL', valor: 3229.20, plano: 'ANUAL', tipo: 'STARTER', contrato: 'ASSINADO', data: '19/05/2026' },
+  { vendedor: 'Steffany Martins', empresa: 'EVOLUIMAIS', valor: 599, plano: 'MENSAL', tipo: 'OFICIAL', contrato: 'ASSINADO', data: '19/05/2026' },
+  { vendedor: 'Victor Alves', empresa: 'CARVALHO DA ROSA MATERIAIS', valor: 1791.57, plano: 'TRIMESTRAL', tipo: 'STARTER', contrato: '', data: '19/05/2026' },
+  { vendedor: 'Pamela Silva', empresa: 'GEOCLAYDI FELIPE GOMES COSTA', valor: 299, plano: 'MENSAL', tipo: 'STARTER', contrato: '', data: '19/05/2026' },
+  { vendedor: 'Debora Gabriela', empresa: 'TRIBOS DA AGUA HOSPEDAGEM', valor: 3860.40, plano: 'ANUAL', tipo: 'STARTER', contrato: 'ENVIADO', data: '19/05/2026' },
+  { vendedor: 'Debora Gabriela', empresa: 'RAZ CONSTRUCOES', valor: 779, plano: 'MENSAL', tipo: 'OFICIAL', contrato: 'ASSINADO', data: '20/05/2026' },
+  { vendedor: 'Debora Gabriela', empresa: 'MEDIQUER MEDICINA', valor: 299, plano: 'MENSAL', tipo: 'STARTER', contrato: '', data: '20/05/2026' },
+  { vendedor: 'Taynara Cristy', empresa: 'ORIZEN PARTICIPACOES', valor: 696, plano: 'MENSAL', tipo: 'STARTER', contrato: 'ASSINADO', data: '20/05/2026' },
+  { vendedor: 'Debora Gabriela', empresa: 'PEROLAS MAKE COSMETICOS', valor: 299, plano: 'MENSAL', tipo: 'STARTER', contrato: '', data: '20/05/2026' },
+  { vendedor: 'Victor Alves', empresa: 'AMANI DESIGN', valor: 446, plano: 'MENSAL', tipo: 'STARTER', contrato: 'ASSINADO', data: '20/05/2026' },
+  { vendedor: 'Debora Gabriela', empresa: 'COOCIRURGE COOPERATIVA', valor: 2870.40, plano: 'ANUAL', tipo: 'STARTER', contrato: 'ASSINADO', data: '20/05/2026' },
+  { vendedor: 'Debora Gabriela', empresa: 'W. M. CAMPOS TECNOLOGIA', valor: 199, plano: 'MENSAL', tipo: 'STARTER', contrato: '', data: '20/05/2026' },
+  { vendedor: 'Debora Gabriela', empresa: '54.228.867 UEMERSON SILVA', valor: 599, plano: 'MENSAL', tipo: 'OFICIAL', contrato: '', data: '20/05/2026' },
+  { vendedor: 'Victor Alves', empresa: 'TGD ESTUDIOS DE PILATES', valor: 3051, plano: 'SEMESTRAL', tipo: 'OFICIAL', contrato: 'ASSINADO', data: '20/05/2026' },
+  { vendedor: 'Victor Alves', empresa: 'DUTRA COMERCIO PLASTICOS', valor: 299, plano: 'MENSAL', tipo: 'STARTER', contrato: '', data: '20/05/2026' },
+  { vendedor: 'Victor Ferreira', empresa: 'LUCILENE ARAUJO DE SOUSA', valor: 549.24, plano: 'TRIMESTRAL', tipo: 'STARTER', contrato: '', data: '21/05/2026' },
+  { vendedor: 'Steffany Martins', empresa: 'VP8 PNEUS E SERVICOS', valor: 299, plano: 'MENSAL', tipo: 'STARTER', contrato: 'ENVIADO', data: '21/05/2026' },
+  { vendedor: 'Steffany Martins', empresa: 'JOSE RODOLPHO SCHULTZ DINIZ', valor: 897, plano: 'TRIMESTRAL', tipo: 'STARTER', contrato: '', data: '22/05/2026' },
+  { vendedor: 'Victor Ferreira', empresa: 'AW ASSISTENCIA A SAUDE', valor: 2157.15, plano: 'TRIMESTRAL', tipo: 'OFICIAL', contrato: '', data: '22/05/2026' },
+  { vendedor: 'Victor Ferreira', empresa: '55.773.034 LUCAS DANIEL', valor: 446, plano: 'MENSAL', tipo: 'STARTER', contrato: '', data: '22/05/2026' },
+  { vendedor: 'Taynara Cristy', empresa: 'G&K CONSULTORIA SISTEMAS', valor: 299, plano: 'MENSAL', tipo: 'STARTER', contrato: 'ASSINADO', data: '22/05/2026' },
+  { vendedor: 'Maria Laura', empresa: 'ALUMIPLAST COMERCIO METAIS', valor: 597, plano: 'TRIMESTRAL', tipo: 'STARTER', contrato: 'ENVIADO', data: '22/05/2026' },
+  { vendedor: 'Maria Laura', empresa: 'ALUMIPLAST COMERCIO METAIS 2', valor: 807.30, plano: 'TRIMESTRAL', tipo: 'STARTER', contrato: 'ENVIADO', data: '22/05/2026' },
+  { vendedor: 'Maria Laura', empresa: 'ALUMIPLAST COMERCIO METAIS 3', valor: 807.30, plano: 'TRIMESTRAL', tipo: 'STARTER', contrato: 'ENVIADO', data: '22/05/2026' },
+  { vendedor: 'Maria Laura', empresa: 'ALUMIPLAST COMERCIO METAIS 4', valor: 597, plano: 'TRIMESTRAL', tipo: 'STARTER', contrato: 'ENVIADO', data: '22/05/2026' },
+  { vendedor: 'Maria Laura', empresa: 'ALUMIPLAST COMERCIO METAIS 5', valor: 807.30, plano: 'TRIMESTRAL', tipo: 'STARTER', contrato: 'ENVIADO', data: '22/05/2026' },
+  { vendedor: 'Cleyton Caetano', empresa: 'PREISIGKE ADVOCACIA', valor: 1435.20, plano: 'SEMESTRAL', tipo: 'STARTER', contrato: '', data: '22/05/2026' },
+  { vendedor: 'Taynara Cristy', empresa: 'ALCAST DO BRASIL', valor: 348, plano: 'MENSAL', tipo: 'STARTER', contrato: '', data: '22/05/2026' },
+  { vendedor: 'Debora Gabriela', empresa: 'PORTOVIG SEGURANCA', valor: 3234.60, plano: 'SEMESTRAL', tipo: 'OFICIAL', contrato: 'ENVIADO', data: '22/05/2026' },
+  { vendedor: 'Cleyton Caetano', empresa: 'SUBLIMAR', valor: 299, plano: 'MENSAL', tipo: 'STARTER', contrato: '', data: '22/05/2026' },
+  { vendedor: 'Steffany Martins', empresa: 'DEBORAH MEKACHESKI', valor: 199, plano: 'MENSAL', tipo: 'DISPARO', contrato: '', data: '25/05/2026' },
+  { vendedor: 'Victor Ferreira', empresa: 'R SCHIMMING PEREIRA SERVICOS', valor: 1524.90, plano: 'SEMESTRAL', tipo: 'STARTER', contrato: '', data: '25/05/2026' },
+];
+
+const metas = [
+  { nome: 'Taynara Cristy', meta: 35000, realizado: 33914.02, projecao: 36591.44, cor: '#00e5a0' },
+  { nome: 'Victor Ferreira', meta: 30000, realizado: 34441.63, projecao: 37160.71, cor: '#7c6df5' },
+  { nome: 'Debora Gabriela', meta: 25000, realizado: 32503.08, projecao: 35069.11, cor: '#ff6b35' },
+  { nome: 'Victor Alves', meta: 30000, realizado: 47212.08, projecao: 50939.35, cor: '#f59e0b' },
+  { nome: 'Steffany Martins', meta: 12500, realizado: 15230.30, projecao: 16432.69, cor: '#06b6d4' },
+  { nome: 'Pamela Silva', meta: 15000, realizado: 1135, projecao: 1224.61, cor: '#ec4899' },
+  { nome: 'Maria Laura', meta: 15000, realizado: 7166, projecao: 7731.74, cor: '#84cc16' },
+  { nome: 'Cleyton Caetano', meta: 0, realizado: 2332.20, projecao: 2516.32, cor: '#94a3b8' },
+];
+
+const historico = [
+  { mes: 'Jan', total: 119982.61 },
+  { mes: 'Fev', total: 169810 },
+  { mes: 'Mar', total: 220000 },
+  { mes: 'Abr', total: 140139.71 },
+  { mes: 'Mai', total: 177179.31, atual: true },
+];
+
+// ===================== HELPERS =====================
+function fmtBRL(v) {
+  return 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+function initials(name) {
+  return name.split(' ').slice(0, 2).map(p => p[0]).join('').toUpperCase();
+}
+function getColors(nome) {
+  const map = {
+    'Taynara Cristy': '#00e5a0',
+    'Victor Ferreira': '#7c6df5',
+    'Debora Gabriela': '#ff6b35',
+    'Victor Alves': '#f59e0b',
+    'Steffany Martins': '#06b6d4',
+    'Pamela Silva': '#ec4899',
+    'Maria Laura': '#84cc16',
+    'Cleyton Caetano': '#94a3b8',
+  };
+  return map[nome] || '#6b7280';
+}
+
+// ===================== METAS =====================
+const metaList = document.getElementById('metaList');
+metas.forEach(m => {
+  const pct = m.meta > 0 ? (m.realizado / m.meta * 100) : 999;
+  const over = pct >= 100;
+  const near = pct >= 80 && !over;
+  const fill = Math.min(pct, 100);
+  const metaPct = m.meta > 0 ? (m.meta / metas[0].meta * 100) : 0;
+
+  metaList.innerHTML += `
+    <div class="vendedor-item">
+      <div class="vendedor-header">
+        <div class="vendedor-name">
+          <div class="avatar" style="background:${m.cor}22; color:${m.cor}">${initials(m.nome)}</div>
+          ${m.nome}
+          ${m.meta === 0 ? '<span style="font-size:0.62rem;color:var(--muted);font-weight:400">(sem meta)</span>' : ''}
+        </div>
+        <div class="vendedor-stats">
+          <span>${fmtBRL(m.realizado)} <strong style="color:${over?'var(--green)':'var(--text)'}">${m.meta > 0 ? '/ '+fmtBRL(m.meta) : ''}</strong></span>
+          <span class="kpi-badge ${over ? 'up' : near ? 'neutral' : 'down'}" style="margin:0">
+            ${m.meta > 0 ? pct.toFixed(1)+'%' : '↗ Extra'}
+          </span>
+        </div>
+      </div>
+      <div class="bar-track">
+        <div class="bar-fill ${over ? 'over' : ''}" style="width:${fill}%;background:${over ? '' : m.cor+'cc'}"></div>
+      </div>
+    </div>
+  `;
+});
+
+// ===================== DONUT =====================
+const planos = {};
+vendas.forEach(v => {
+  planos[v.tipo] = (planos[v.tipo] || 0) + 1;
+});
+const planoColors = { STARTER: '#00e5a0', OFICIAL: '#7c6df5', DISPARO: '#f59e0b' };
+const total = vendas.length;
+const donutArea = document.getElementById('donutArea');
+const R = 50, cx = 60, cy = 60, r = 38, inner = 24;
+let cumulative = 0;
+let paths = '';
+const donutData = Object.entries(planos).map(([k, v]) => ({ label: k, count: v, pct: v/total }));
+
+donutData.forEach(d => {
+  const start = cumulative * Math.PI * 2 - Math.PI/2;
+  const end = (cumulative + d.pct) * Math.PI * 2 - Math.PI/2;
+  const x1 = cx + r * Math.cos(start), y1 = cy + r * Math.sin(start);
+  const x2 = cx + r * Math.cos(end), y2 = cy + r * Math.sin(end);
+  const xi1 = cx + inner * Math.cos(start), yi1 = cy + inner * Math.sin(start);
+  const xi2 = cx + inner * Math.cos(end), yi2 = cy + inner * Math.sin(end);
+  const large = d.pct > 0.5 ? 1 : 0;
+  paths += `<path d="M ${xi1} ${yi1} L ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} L ${xi2} ${yi2} A ${inner} ${inner} 0 ${large} 0 ${xi1} ${yi1}" fill="${planoColors[d.label] || '#6b7280'}" />`;
+  cumulative += d.pct;
+});
+
+donutArea.innerHTML = `
+  <svg class="donut" width="120" height="120" viewBox="0 0 120 120">
+    ${paths}
+    <text x="60" y="56" text-anchor="middle" fill="#e8eaf0" font-size="14" font-family="Syne,sans-serif" font-weight="700">${total}</text>
+    <text x="60" y="70" text-anchor="middle" fill="#6b7280" font-size="7" font-family="DM Mono,monospace">vendas</text>
+  </svg>
+  <div class="donut-legend">
+    ${donutData.map(d => `
+      <div class="legend-item">
+        <div class="legend-dot" style="background:${planoColors[d.label] || '#6b7280'}"></div>
+        <span class="legend-label">${d.label}</span>
+        <span class="legend-val">${d.count}</span>
+        <span class="legend-pct">${(d.pct*100).toFixed(0)}%</span>
+      </div>
+    `).join('')}
+  </div>
+`;
+
+// ===================== BAR CHART =====================
+const barChart = document.getElementById('barChart');
+const maxH = Math.max(...historico.map(h => h.total));
+historico.forEach(h => {
+  const pct = h.total / maxH * 100;
+  barChart.innerHTML += `
+    <div class="month-bar">
+      <div class="month-col" style="height:${pct}%;background:${h.atual ? 'var(--accent)' : 'rgba(255,255,255,0.12)'}; ${h.atual ? 'box-shadow:0 0 12px rgba(0,229,160,0.3)' : ''}"
+        title="${h.mes}: ${fmtBRL(h.total)}"></div>
+      <div class="month-label" style="color:${h.atual ? 'var(--accent)' : 'var(--muted)'}">${h.mes}</div>
+    </div>
+  `;
+});
+
+// ===================== TIPO TABLE =====================
+const tipoTable = document.getElementById('tipoTable');
+Object.entries(planos).forEach(([tipo, cnt]) => {
+  tipoTable.innerHTML += `
+    <tr>
+      <td><span class="chip ${tipo.toLowerCase()}">${tipo}</span></td>
+      <td style="text-align:right; font-weight:500">${cnt}</td>
+      <td style="text-align:right; color:var(--muted)">${(cnt/total*100).toFixed(1)}%</td>
+    </tr>
+  `;
+});
+
+// Premiação
+const premios = [
+  { pos: '1°', minimo: 'R$ 25.000', comissao: '2,0%', valor: 'R$ 500' },
+  { pos: '2°', minimo: 'R$ 30.000', comissao: '2,5%', valor: 'R$ 750' },
+  { pos: '3°', minimo: 'R$ 35.000', comissao: '3,0%', valor: 'R$ 1.050' },
+  { pos: '4°', minimo: 'R$ 40.000', comissao: '3,5%', valor: 'R$ 1.400' },
+  { pos: '5°', minimo: 'R$ 45.000', comissao: '4,0%', valor: 'R$ 1.800' },
+  { pos: '6°', minimo: 'R$ 50.000', comissao: '4,5%', valor: 'R$ 2.250' },
+];
+const premioList = document.getElementById('premioList');
+premios.forEach(p => {
+  premioList.innerHTML += `
+    <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.68rem; padding:3px 0;">
+      <span style="font-family:'Syne',sans-serif; font-weight:700; color:var(--accent); width:22px">${p.pos}</span>
+      <span style="color:var(--muted); flex:1">${p.minimo}</span>
+      <span style="color:var(--text)">${p.comissao}</span>
+      <span style="color:var(--green); font-weight:500">${p.valor}</span>
+    </div>
+  `;
+});
+
+// ===================== TRANSAÇÕES =====================
+let currentFilter = 'all';
+const txList = document.getElementById('txList');
+const txCount = document.getElementById('txCount');
+
+function renderTx() {
+  const filtered = currentFilter === 'all'
+    ? vendas.slice().reverse()
+    : vendas.filter(v => v.tipo === currentFilter).reverse();
+  txCount.textContent = filtered.length + ' registros';
+  txList.innerHTML = filtered.slice(0, 20).map(v => {
+    const cor = getColors(v.vendedor);
+    return `
+      <div class="tx-item">
+        <div class="tx-dot" style="background:${cor}22; color:${cor}">${initials(v.vendedor)}</div>
+        <div class="tx-info">
+          <div class="tx-name" title="${v.empresa}">${v.empresa}</div>
+          <div class="tx-meta">${v.vendedor} · ${v.data}</div>
+        </div>
+        <div class="tx-right">
+          <div class="tx-value">${fmtBRL(v.valor)}</div>
+          <div><span class="tx-plano chip ${v.tipo.toLowerCase()}">${v.plano}</span></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+document.querySelectorAll('.filter-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    renderTx();
+  });
+});
+renderTx();
+</script>
+</body>
+</html>
