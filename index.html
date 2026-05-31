@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Equipe — Live</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0a0c10;--surface:#111318;--surface2:#181c24;
+    --border:rgba(255,255,255,0.07);--accent:#00e5a0;--accent2:#ff6b35;
+    --accent3:#7c6df5;--text:#e8eaf0;--muted:#6b7280;
+    --green:#22c55e;--red:#ef4444;--yellow:#f59e0b;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 10% 0%,rgba(0,229,160,0.06) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 90% 100%,rgba(124,109,245,0.06) 0%,transparent 60%);pointer-events:none;z-index:0}
+  .container{max-width:1400px;margin:0 auto;padding:0 2rem;position:relative;z-index:1}
+
+  #loadingScreen{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.2rem}
+  .spinner{width:40px;height:40px;border:3px solid rgba(0,229,160,0.15);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  #loadingScreen p{font-size:0.8rem;color:var(--muted)}
+  #loadingScreen strong{font-family:'Syne',sans-serif;font-size:1.1rem;color:var(--text)}
+
+  #errorBanner{display:none;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:1rem 1.4rem;margin-bottom:1.5rem;font-size:0.78rem;color:var(--red);line-height:1.6}
+
+  header{padding:2.5rem 0 1.5rem;border-bottom:1px solid var(--border);margin-bottom:2rem}
+  .header-inner{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+  .header-tag{font-size:0.7rem;font-weight:600;letter-spacing:0.2em;color:var(--accent);text-transform:uppercase;margin-bottom:0.4rem}
+  h1{font-family:'Syne',sans-serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:800;line-height:1;letter-spacing:-0.03em}
+  h1 span{color:var(--accent)}
+  .header-meta{text-align:right;font-size:0.75rem;color:var(--muted);line-height:1.8}
+  .live-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-right:6px;animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+  .refresh-btn{background:rgba(0,229,160,0.1);border:1px solid rgba(0,229,160,0.3);color:var(--accent);font-family:'DM Mono',monospace;font-size:0.72rem;padding:6px 14px;border-radius:99px;cursor:pointer;transition:all .2s;margin-top:4px}
+  .refresh-btn:hover{background:rgba(0,229,160,0.2)}
+  .refresh-btn.loading{opacity:0.5;pointer-events:none}
+
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:2rem}
+  .kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.4rem 1.6rem;position:relative;overflow:hidden;transition:border-color .2s,transform .2s;animation:fadeUp .5s ease both}
+  .kpi-card:hover{border-color:rgba(0,229,160,0.25);transform:translateY(-2px)}
+  .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--kpi-color,var(--accent))}
+  .kpi-label{font-size:0.68rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:0.6rem}
+  .kpi-value{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:700;line-height:1}
+  .kpi-sub{font-size:0.72rem;color:var(--muted);margin-top:0.4rem}
+  .kpi-badge{display:inline-flex;align-items:center;gap:3px;font-size:0.7rem;padding:2px 7px;border-radius:99px;margin-top:0.5rem}
+  .kpi-badge.up{background:rgba(34,197,94,0.12);color:var(--green)}
+  .kpi-badge.down{background:rgba(239,68,68,0.12);color:var(--red)}
+  .kpi-badge.neutral{background:rgba(245,158,11,0.12);color:var(--yellow)}
+
+  .main-grid{display:grid;grid-template-columns:1fr 380px;gap:1.5rem;margin-bottom:1.5rem}
+  @media(max-width:1100px){.main-grid{grid-template-columns:1fr}}
+
+  .panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.6rem;animation:fadeUp .6s ease both}
+  .panel-title{font-family:'Syne',sans-serif;font-size:0.85rem;font-weight:700;letter-spacing:0.04em;margin-bottom:1.2rem;display:flex;align-items:center;justify-content:space-between}
+  .panel-title .badge{font-family:'DM Mono',monospace;font-size:0.68rem;font-weight:400;color:var(--muted);background:var(--surface2);padding:2px 10px;border-radius:99px}
+
+  .vendedor-list{display:flex;flex-direction:column;gap:0.9rem}
+  .vendedor-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem}
+  .vendedor-name{font-family:'Syne',sans-serif;font-size:0.85rem;font-weight:600;display:flex;align-items:center;gap:0.5rem}
+  .avatar{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:700;font-family:'Syne',sans-serif;flex-shrink:0}
+  .vendedor-stats{display:flex;gap:1rem;font-size:0.7rem;color:var(--muted)}
+  .bar-track{height:6px;background:var(--surface2);border-radius:99px;overflow:hidden}
+  .bar-fill{height:100%;border-radius:99px}
+  .bar-fill.over{background:linear-gradient(90deg,var(--green),#86efac)!important}
+
+  .donut-container{display:flex;align-items:center;gap:1.5rem}
+  .donut-legend{display:flex;flex-direction:column;gap:0.6rem;flex:1}
+  .legend-item{display:flex;align-items:center;gap:0.6rem;font-size:0.75rem}
+  .legend-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+  .legend-label{color:var(--muted);flex:1}
+  .legend-pct{color:var(--muted);font-size:0.67rem}
+
+  .contrato-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.7rem;margin-bottom:1rem}
+  .contrato-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:0.9rem 1rem;text-align:center}
+  .contrato-num{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800}
+  .contrato-label{font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-top:2px}
+
+  .bottom-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;margin-bottom:2rem}
+  @media(max-width:900px){.bottom-grid{grid-template-columns:1fr}}
+
+  .bar-chart{display:flex;align-items:flex-end;gap:6px;height:100px;padding-bottom:1.5rem;position:relative}
+  .bar-chart::after{content:'';position:absolute;bottom:1.5rem;left:0;right:0;height:1px;background:var(--border)}
+  .month-bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+  .month-col{width:100%;border-radius:4px 4px 0 0;min-height:4px}
+  .month-label{font-size:0.6rem;color:var(--muted);text-align:center}
+
+  .inbound-table{width:100%;border-collapse:collapse;font-size:0.72rem}
+  .inbound-table th{text-align:left;padding:0 0 0.6rem;font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);font-weight:400}
+  .inbound-table td{padding:0.5rem 0;border-bottom:1px solid rgba(255,255,255,0.03);vertical-align:middle}
+  .inbound-table tr:last-child td{border-bottom:none}
+
+  .chip{font-size:0.62rem;padding:2px 8px;border-radius:99px;font-weight:500}
+  .chip.starter{background:rgba(0,229,160,0.1);color:var(--accent)}
+  .chip.oficial{background:rgba(124,109,245,0.1);color:#a78bfa}
+  .chip.disparo{background:rgba(245,158,11,0.1);color:var(--yellow)}
+
+  .filter-tabs{display:flex;gap:0.5rem;margin-bottom:1rem;flex-wrap:wrap}
+  .filter-tab{font-family:'DM Mono',monospace;font-size:0.7rem;padding:5px 14px;border-radius:99px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .15s}
+  .filter-tab:hover{border-color:rgba(0,229,160,0.3);color:var(--text)}
+  .filter-tab.active{background:var(--accent);border-color:var(--accent);color:#000;font-weight:500}
+
+  .tx-list{display:flex;flex-direction:column}
+  .tx-item{display:flex;align-items:flex-start;gap:0.9rem;padding:0.75rem 0;border-bottom:1px solid var(--border);font-size:0.75rem}
+  .tx-item:last-child{border-bottom:none}
+  .tx-dot{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.6rem;font-weight:700;font-family:'Syne',sans-serif;flex-shrink:0}
+  .tx-info{flex:1;min-width:0}
+  .tx-name{font-family:'Syne',sans-serif;font-size:0.75rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
+  .tx-meta{color:var(--muted);font-size:0.67rem}
+  .tx-right{text-align:right;flex-shrink:0}
+  .tx-value{font-weight:500;font-size:0.78rem}
+
+  footer{border-top:1px solid var(--border);padding:1.5rem 0;text-align:center;font-size:0.68rem;color:var(--muted);letter-spacing:0.05em}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<div id="loadingScreen">
+  <div class="spinner"></div>
+  <strong>Carregando dados...</strong>
+  <p>Buscando planilha do Google Sheets</p>
+</div>
+
+<div class="container" id="appContent" style="display:none">
+  <header>
+    <div class="header-inner">
+      <div>
+        <div class="header-tag">Acompanhamento Equipe</div>
+        <h1>Dashboard <span>Vendas</span></h1>
+      </div>
+      <div class="header-meta">
+        <div><span class="live-dot"></span><span id="mesAtual">—</span></div>
+        <div>Equipe Inside Sales</div>
+        <div id="lastUpdated">—</div>
+        <button class="refresh-btn" id="refreshBtn" onclick="loadData()">↻ Atualizar</button>
+      </div>
+    </div>
+  </header>
+
+  <div id="errorBanner"></div>
+
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <div class="main-grid">
+    <div class="panel">
+      <div class="panel-title">Metas por Vendedor <span class="badge" id="metaMes">—</span></div>
+      <div class="vendedor-list" id="metaList"></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:1.5rem">
+      <div class="panel">
+        <div class="panel-title">Distribuição de Planos</div>
+        <div class="donut-container" id="donutArea"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Status dos Contratos</div>
+        <div class="contrato-grid" id="contratoGrid"></div>
+        <div style="font-size:0.68rem;color:var(--muted);text-align:center;padding-top:0.3rem" id="contratoTotal"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-grid">
+    <div class="panel">
+      <div class="panel-title">Histórico 2026</div>
+      <div class="bar-chart" id="barChart"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Assinaturas por Tipo</div>
+      <table class="inbound-table">
+        <thead><tr><th>Assinatura</th><th style="text-align:right">Qtd</th><th style="text-align:right">%</th></tr></thead>
+        <tbody id="tipoTable"></tbody>
+      </table>
+      <div style="margin-top:1.2rem">
+        <div style="font-size:0.65rem;color:var(--muted);margin-bottom:0.6rem;text-transform:uppercase;letter-spacing:0.1em">Ranking de Premiação</div>
+        <div id="premioList" style="display:flex;flex-direction:column;gap:0.4rem"></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Últimas Vendas <span class="badge" id="txCount">—</span></div>
+      <div class="filter-tabs">
+        <button class="filter-tab active" data-filter="all">Todos</button>
+        <button class="filter-tab" data-filter="STARTER">Starter</button>
+        <button class="filter-tab" data-filter="OFICIAL">Oficial</button>
+        <button class="filter-tab" data-filter="DISPARO">Disparo</button>
+      </div>
+      <div class="tx-list" id="txList"></div>
+    </div>
+  </div>
+
+  <footer>
+    <strong style="color:var(--text)">ACOMPANHAMENTO EQUIPE 2025/2026</strong> — Dashboard conectado ao Google Sheets via CSV público · Atualiza a cada 5 minutos
+  </footer>
+</div>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────
+const SHEET_ID = '1oo1Kapzn4pjBEK1nktloag6zrbgLBB6RsfJupZOi1Nc';
+const GID      = '1426332104';
+// URL pública de exportação CSV — não precisa de API Key
+const CSV_URL  = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}`;
+
+const METAS = {
+  'Taynara Cristy': 35000, 'Victor Ferreira': 30000,
+  'Debora Gabriela': 25000, 'Victor Alves': 30000,
+  'Steffany Martins': 12500, 'Pamela Silva': 15000,
+  'Maria Laura': 15000,
+};
+const CORES = {
+  'Taynara Cristy':'#00e5a0','Victor Ferreira':'#7c6df5',
+  'Debora Gabriela':'#ff6b35','Victor Alves':'#f59e0b',
+  'Steffany Martins':'#06b6d4','Pamela Silva':'#ec4899',
+  'Maria Laura':'#84cc16',
+};
+const PLANO_COLORS = { STARTER:'#00e5a0', OFICIAL:'#7c6df5', DISPARO:'#f59e0b' };
+const HISTORICO_ANTERIOR = [
+  {mes:'Jan',total:119982.61},{mes:'Fev',total:169810},
+  {mes:'Mar',total:220000},{mes:'Abr',total:140139.71},
+];
+// ─────────────────────────────────────────────────────────
+
+let vendas = [];
+let currentFilter = 'all';
+
+const fmtBRL = v => 'R$ ' + Number(v).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});
+const initials = n => (n||'?').split(' ').slice(0,2).map(p=>p[0]).join('').toUpperCase();
+const getCor = n => CORES[n] || '#94a3b8';
+
+// ── CSV Parser ────────────────────────────────────────────
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  if (lines.length < 2) return [];
+
+  // Detecta separador (vírgula ou ponto-e-vírgula)
+  const sep = lines[0].includes(';') ? ';' : ',';
+
+  const splitLine = line => {
+    const result = []; let cur = ''; let inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === '"') { inQ = !inQ; continue; }
+      if (c === sep && !inQ) { result.push(cur.trim()); cur = ''; }
+      else cur += c;
+    }
+    result.push(cur.trim());
+    return result;
+  };
+
+  const headers = splitLine(lines[0]).map(h => h.toLowerCase().replace(/[^a-z0-9]/g,''));
+
+  const find = (...keys) => {
+    for (const k of keys) {
+      const i = headers.findIndex(h => h.includes(k));
+      if (i !== -1) return i;
+    }
+    return -1;
+  };
+
+  const ci = {
+    vendedor: find('vendedor','nome','seller','consultor'),
+    empresa:  find('empresa','cliente','company','razao'),
+    valor:    find('valor','value','total','receita'),
+    plano:    find('plano','plan','periodicidade','ciclo'),
+    tipo:     find('tipo','type','produto','assinatura'),
+    contrato: find('contrato','contract','status'),
+    data:     find('data','date'),
+  };
+
+  return lines.slice(1)
+    .map(l => splitLine(l))
+    .filter(r => r.length > 1)
+    .map(r => ({
+      vendedor: r[ci.vendedor] || '',
+      empresa:  r[ci.empresa]  || '',
+      valor:    parseFloat((r[ci.valor]||'0').replace(/[R$\s.]/g,'').replace(',','.')) || 0,
+      plano:    (r[ci.plano]   || '').toUpperCase().trim(),
+      tipo:     (r[ci.tipo]    || '').toUpperCase().trim(),
+      contrato: (r[ci.contrato]|| '').toUpperCase().trim(),
+      data:     r[ci.data]     || '',
+    }))
+    .filter(r => r.vendedor && r.valor > 0);
+}
+
+// ── Carrega dados ─────────────────────────────────────────
+async function loadData() {
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('loading'); btn.textContent = '↻ Carregando...';
+  document.getElementById('errorBanner').style.display = 'none';
+
+  try {
+    // Adiciona timestamp para evitar cache
+    const url = CSV_URL + '&cachebust=' + Date.now();
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status} — verifique se a planilha está pública.`);
+    const text = await res.text();
+    vendas = parseCSV(text);
+    if (vendas.length === 0) throw new Error('Nenhuma venda encontrada. Verifique se a aba correta está sendo exportada e se há dados abaixo do cabeçalho.');
+    renderAll();
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('appContent').style.display = 'block';
+    document.getElementById('lastUpdated').textContent =
+      'Atualizado às ' + new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  } catch(e) {
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('appContent').style.display = 'block';
+    const eb = document.getElementById('errorBanner');
+    eb.style.display = 'block';
+    eb.innerHTML = `⚠️ <strong>Erro ao carregar dados:</strong> ${e.message}<br>
+      <small>Certifique-se de que a planilha está com acesso público: <b>Compartilhar → Qualquer pessoa com o link → Visualizador</b></small>`;
+  }
+  btn.classList.remove('loading'); btn.textContent = '↻ Atualizar';
+}
+
+// ── Renderização ──────────────────────────────────────────
+function renderAll() {
+  renderKPIs(); renderMetas(); renderDonut();
+  renderContratos(); renderBarChart(); renderTipos();
+  renderPremios(); renderTx(); setupFilters();
+
+  if (vendas.length > 0) {
+    const d = vendas[vendas.length-1].data.split('/');
+    const mn = ['','Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    const label = (mn[parseInt(d[1])]||d[1]||'') + ' ' + (d[2]||'');
+    document.getElementById('mesAtual').textContent = label;
+    document.getElementById('metaMes').textContent  = label;
+  }
+}
+
+function renderKPIs() {
+  const total   = vendas.reduce((s,v)=>s+v.valor,0);
+  const metaSum = Object.values(METAS).reduce((a,b)=>a+b,0);
+  const pct     = metaSum > 0 ? (total/metaSum*100) : 0;
+  const assin   = vendas.filter(v=>v.contrato==='ASSINADO').length;
+  const ticket  = vendas.length ? total/vendas.length : 0;
+  const hoje    = new Date();
+  const diasMes = new Date(hoje.getFullYear(),hoje.getMonth()+1,0).getDate();
+  const proj    = (total / Math.max(hoje.getDate(),1)) * diasMes;
+
+  document.getElementById('kpiGrid').innerHTML = `
+    <div class="kpi-card" style="--kpi-color:var(--accent)">
+      <div class="kpi-label">Total Realizado</div>
+      <div class="kpi-value">${fmtBRL(total)}</div>
+      <div class="kpi-sub">Meta: ${fmtBRL(metaSum)}</div>
+      <div class="kpi-badge ${pct>=100?'up':pct>=80?'neutral':'down'}">${pct>=100?'↑':'→'} ${pct.toFixed(1)}% da meta</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color:var(--accent3)">
+      <div class="kpi-label">Vendas no Mês</div>
+      <div class="kpi-value">${vendas.length}</div>
+      <div class="kpi-sub">Registros carregados</div>
+      <div class="kpi-badge neutral">↗ Mês em andamento</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color:var(--accent2)">
+      <div class="kpi-label">Projeção do Mês</div>
+      <div class="kpi-value">${fmtBRL(proj)}</div>
+      <div class="kpi-sub">${((proj/metaSum)*100).toFixed(1)}% da meta projetado</div>
+      <div class="kpi-badge ${proj>=metaSum?'up':'neutral'}">↑ Estimativa linear</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color:#7c6df5">
+      <div class="kpi-label">Ticket Médio</div>
+      <div class="kpi-value">${fmtBRL(ticket)}</div>
+      <div class="kpi-sub">Por venda no período</div>
+      <div class="kpi-badge neutral">→ Média geral</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color:#f59e0b">
+      <div class="kpi-label">Contratos Assinados</div>
+      <div class="kpi-value">${assin}</div>
+      <div class="kpi-sub">De ${vendas.length} registros</div>
+      <div class="kpi-badge up">↑ ${vendas.length?((assin/vendas.length)*100).toFixed(0):0}% taxa</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color:#22c55e">
+      <div class="kpi-label">Vendedores Ativos</div>
+      <div class="kpi-value">${new Set(vendas.map(v=>v.vendedor)).size}</div>
+      <div class="kpi-sub">Com vendas no período</div>
+      <div class="kpi-badge up">↑ Equipe engajada</div>
+    </div>`;
+}
+
+function renderMetas() {
+  const por = {};
+  vendas.forEach(v=>{ por[v.vendedor]=(por[v.vendedor]||0)+v.valor; });
+  Object.keys(METAS).forEach(n=>{ if(!por[n]) por[n]=0; });
+  const sorted = Object.entries(por).sort((a,b)=>b[1]-a[1]);
+  document.getElementById('metaList').innerHTML = sorted.map(([nome,real])=>{
+    const meta=METAS[nome]||0, pct=meta>0?(real/meta*100):999;
+    const over=pct>=100, near=pct>=80&&!over, fill=Math.min(pct,100), cor=getCor(nome);
+    return `<div class="vendedor-item">
+      <div class="vendedor-header">
+        <div class="vendedor-name">
+          <div class="avatar" style="background:${cor}22;color:${cor}">${initials(nome)}</div>
+          ${nome} ${meta===0?'<span style="font-size:0.62rem;color:var(--muted);font-weight:400">(sem meta)</span>':''}
+        </div>
+        <div class="vendedor-stats">
+          <span>${fmtBRL(real)}${meta>0?' / '+fmtBRL(meta):''}</span>
+          <span class="kpi-badge ${over?'up':near?'neutral':'down'}" style="margin:0">${meta>0?pct.toFixed(1)+'%':'↗ Extra'}</span>
+        </div>
+      </div>
+      <div class="bar-track"><div class="bar-fill ${over?'over':''}" style="width:${fill}%;background:${over?'':cor+'cc'}"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function renderDonut() {
+  const planos={};
+  vendas.forEach(v=>{ planos[v.tipo]=(planos[v.tipo]||0)+1; });
+  const total=vendas.length, data=Object.entries(planos).map(([k,v])=>({label:k,count:v,pct:v/total}));
+  const cx=60,cy=60,r=38,inner=24;
+  let cum=0,paths='';
+  data.forEach(d=>{
+    const s=cum*Math.PI*2-Math.PI/2, e=(cum+d.pct)*Math.PI*2-Math.PI/2;
+    const x1=cx+r*Math.cos(s),y1=cy+r*Math.sin(s),x2=cx+r*Math.cos(e),y2=cy+r*Math.sin(e);
+    const xi1=cx+inner*Math.cos(s),yi1=cy+inner*Math.sin(s),xi2=cx+inner*Math.cos(e),yi2=cy+inner*Math.sin(e);
+    const col=PLANO_COLORS[d.label]||'#6b7280',lg=d.pct>0.5?1:0;
+    paths+=`<path d="M ${xi1} ${yi1} L ${x1} ${y1} A ${r} ${r} 0 ${lg} 1 ${x2} ${y2} L ${xi2} ${yi2} A ${inner} ${inner} 0 ${lg} 0 ${xi1} ${yi1}" fill="${col}"/>`;
+    cum+=d.pct;
+  });
+  document.getElementById('donutArea').innerHTML=`
+    <svg width="120" height="120" viewBox="0 0 120 120" style="flex-shrink:0">
+      ${paths}
+      <text x="60" y="56" text-anchor="middle" fill="#e8eaf0" font-size="14" font-family="Syne,sans-serif" font-weight="700">${total}</text>
+      <text x="60" y="70" text-anchor="middle" fill="#6b7280" font-size="7" font-family="DM Mono,monospace">vendas</text>
+    </svg>
+    <div class="donut-legend">
+      ${data.map(d=>`<div class="legend-item"><div class="legend-dot" style="background:${PLANO_COLORS[d.label]||'#6b7280'}"></div><span class="legend-label">${d.label}</span><span class="legend-val">${d.count}</span><span class="legend-pct">${(d.pct*100).toFixed(0)}%</span></div>`).join('')}
+    </div>`;
+}
+
+function renderContratos() {
+  const a=vendas.filter(v=>v.contrato==='ASSINADO').length;
+  const e=vendas.filter(v=>v.contrato==='ENVIADO').length;
+  const p=vendas.filter(v=>!v.contrato||v.contrato==='').length;
+  document.getElementById('contratoGrid').innerHTML=`
+    <div class="contrato-card"><div class="contrato-num" style="color:var(--green)">${a}</div><div class="contrato-label">Assinados</div></div>
+    <div class="contrato-card"><div class="contrato-num" style="color:var(--yellow)">${e}</div><div class="contrato-label">Enviados</div></div>
+    <div class="contrato-card"><div class="contrato-num" style="color:var(--muted)">${p}</div><div class="contrato-label">Pendentes</div></div>`;
+  document.getElementById('contratoTotal').textContent=`Total de ${vendas.length} registros analisados`;
+}
+
+function renderBarChart() {
+  const totalAtual=vendas.reduce((s,v)=>s+v.valor,0);
+  const meses=[...HISTORICO_ANTERIOR];
+  if(vendas.length>0){
+    const d=vendas[vendas.length-1].data.split('/');
+    const mn=['','Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    meses.push({mes:mn[parseInt(d[1])]||'Atual',total:totalAtual,atual:true});
+  }
+  const maxH=Math.max(...meses.map(h=>h.total));
+  document.getElementById('barChart').innerHTML=meses.map(h=>{
+    const pct=h.total/maxH*100;
+    return `<div class="month-bar">
+      <div class="month-col" style="height:${pct}%;background:${h.atual?'var(--accent)':'rgba(255,255,255,0.12)'};${h.atual?'box-shadow:0 0 12px rgba(0,229,160,0.3)':''}" title="${h.mes}: ${fmtBRL(h.total)}"></div>
+      <div class="month-label" style="color:${h.atual?'var(--accent)':'var(--muted)'}">${h.mes}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderTipos() {
+  const planos={};
+  vendas.forEach(v=>{ planos[v.tipo]=(planos[v.tipo]||0)+1; });
+  const total=vendas.length;
+  document.getElementById('tipoTable').innerHTML=Object.entries(planos).map(([tipo,cnt])=>`
+    <tr>
+      <td><span class="chip ${tipo.toLowerCase()}">${tipo}</span></td>
+      <td style="text-align:right;font-weight:500">${cnt}</td>
+      <td style="text-align:right;color:var(--muted)">${(cnt/total*100).toFixed(1)}%</td>
+    </tr>`).join('');
+}
+
+function renderPremios() {
+  const premios=[
+    {pos:'1°',minimo:'R$ 25.000',comissao:'2,0%',valor:'R$ 500'},
+    {pos:'2°',minimo:'R$ 30.000',comissao:'2,5%',valor:'R$ 750'},
+    {pos:'3°',minimo:'R$ 35.000',comissao:'3,0%',valor:'R$ 1.050'},
+    {pos:'4°',minimo:'R$ 40.000',comissao:'3,5%',valor:'R$ 1.400'},
+    {pos:'5°',minimo:'R$ 45.000',comissao:'4,0%',valor:'R$ 1.800'},
+    {pos:'6°',minimo:'R$ 50.000',comissao:'4,5%',valor:'R$ 2.250'},
+  ];
+  document.getElementById('premioList').innerHTML=premios.map(p=>`
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.68rem;padding:3px 0">
+      <span style="font-family:'Syne',sans-serif;font-weight:700;color:var(--accent);width:22px">${p.pos}</span>
+      <span style="color:var(--muted);flex:1">${p.minimo}</span>
+      <span>${p.comissao}</span>
+      <span style="color:var(--green);font-weight:500">${p.valor}</span>
+    </div>`).join('');
+}
+
+function renderTx() {
+  const filtered=currentFilter==='all'?[...vendas].reverse():vendas.filter(v=>v.tipo===currentFilter).reverse();
+  document.getElementById('txCount').textContent=filtered.length+' registros';
+  document.getElementById('txList').innerHTML=filtered.slice(0,20).map(v=>{
+    const cor=getCor(v.vendedor);
+    return `<div class="tx-item">
+      <div class="tx-dot" style="background:${cor}22;color:${cor}">${initials(v.vendedor)}</div>
+      <div class="tx-info">
+        <div class="tx-name" title="${v.empresa}">${v.empresa}</div>
+        <div class="tx-meta">${v.vendedor} · ${v.data}</div>
+      </div>
+      <div class="tx-right">
+        <div class="tx-value">${fmtBRL(v.valor)}</div>
+        <div><span class="chip ${v.tipo.toLowerCase()}" style="margin-top:2px;display:inline-block">${v.plano||v.tipo}</span></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function setupFilters() {
+  document.querySelectorAll('.filter-tab').forEach(btn=>{
+    btn.onclick=()=>{
+      document.querySelectorAll('.filter-tab').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter=btn.dataset.filter;
+      renderTx();
+    };
+  });
+}
+
+loadData();
+setInterval(loadData, 5*60*1000);
+</script>
+</body>
+</html>
