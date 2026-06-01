@@ -1,0 +1,295 @@
+
+<h2 class="sr-only">Dashboard de acompanhamento de equipe de vendas – Maio 2026</h2>
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+.dash { padding: 1.5rem 0; }
+.section-title { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-text-secondary); margin-bottom: 12px; }
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1.5rem; }
+.kpi { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 14px 16px; }
+.kpi-label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 6px; }
+.kpi-value { font-size: 22px; font-weight: 500; color: var(--color-text-primary); line-height: 1; }
+.kpi-sub { font-size: 12px; color: var(--color-text-secondary); margin-top: 4px; }
+.kpi-up { color: #3B6D11; }
+.kpi-down { color: #A32D2D; }
+.charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 1.5rem; }
+.chart-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 16px; }
+.chart-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 14px; }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 10px; font-size: 11px; color: var(--color-text-secondary); }
+.legend span { display: flex; align-items: center; gap: 5px; }
+.legend-dot { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+.table-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 16px; margin-bottom: 1.5rem; overflow-x: auto; }
+.rank-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.rank-table th { font-size: 11px; font-weight: 500; color: var(--color-text-secondary); text-align: left; padding: 6px 10px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.rank-table td { padding: 10px 10px; border-bottom: 0.5px solid var(--color-border-tertiary); color: var(--color-text-primary); vertical-align: middle; }
+.rank-table tr:last-child td { border-bottom: none; }
+.badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: var(--border-radius-md); font-weight: 500; }
+.badge-ok { background: #EAF3DE; color: #3B6D11; }
+.badge-warn { background: #FAEEDA; color: #854F0B; }
+.badge-danger { background: #FCEBEB; color: #A32D2D; }
+.badge-info { background: #E6F1FB; color: #185FA5; }
+.progress-bar { height: 6px; background: var(--color-background-secondary); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 3px; }
+.avatar { width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; margin-right: 8px; flex-shrink: 0; }
+.bottom-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+</style>
+
+<div class="dash">
+  <div style="display:flex; align-items:baseline; gap:12px; margin-bottom:1.5rem;">
+    <h1 style="font-size:18px; font-weight:500; color:var(--color-text-primary);">Acompanhamento Equipe</h1>
+    <span style="font-size:13px; color:var(--color-text-secondary);">Maio 2026</span>
+  </div>
+
+  <div class="section-title">Resumo do mês</div>
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="kpi-label">Total realizado</div>
+      <div class="kpi-value">R$177,2k</div>
+      <div class="kpi-sub">Meta: R$172,5k</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">% da meta</div>
+      <div class="kpi-value kpi-up">102,7%</div>
+      <div class="kpi-sub">Meta superada</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Assinaturas (total)</div>
+      <div class="kpi-value">121</div>
+      <div class="kpi-sub">Novos assinantes</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Acima da meta</div>
+      <div class="kpi-value" style="color:#3B6D11;">+R$4,7k</div>
+      <div class="kpi-sub">Conversão equipe: 18,51%</div>
+    </div>
+  </div>
+
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="chart-title">Performance por vendedor — Maio</div>
+      <div class="legend">
+        <span><span class="legend-dot" style="background:#378ADD"></span>Realizado</span>
+        <span><span class="legend-dot" style="background:#D3D1C7"></span>Meta</span>
+      </div>
+      <div style="position:relative; height:200px;">
+        <canvas id="chartVendedor" role="img" aria-label="Gráfico de barras com realizado vs meta por vendedor em maio 2026">Realizado vs meta: Victor Alves R$47.212 / meta R$30k; Victor F R$34.442 / meta R$30k; Taynara R$33.914 / meta R$35k; Debora R$32.503 / meta R$25k; Steffany R$15.230 / meta R$12.5k; Maria Laura R$7.166 / meta R$15k; Pamela R$1.135 / meta R$15k.</canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Evolução mensal da equipe — 2026</div>
+      <div class="legend">
+        <span><span class="legend-dot" style="background:#1D9E75"></span>Debora</span>
+        <span><span class="legend-dot" style="background:#378ADD"></span>Victor F.</span>
+        <span><span class="legend-dot" style="background:#D85A30"></span>Steffany</span>
+        <span><span class="legend-dot" style="background:#7F77DD"></span>Taynara</span>
+        <span><span class="legend-dot" style="background:#BA7517"></span>Victor A.</span>
+      </div>
+      <div style="position:relative; height:200px;">
+        <canvas id="chartEvolucao" role="img" aria-label="Gráfico de linha com evolução mensal de vendas por vendedor jan-mai 2026">Evolução mensal jan-mai 2026 por vendedor.</canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Ranking de vendedores — Maio 2026</div>
+  <div class="table-card">
+    <table class="rank-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Vendedor</th>
+          <th>Meta</th>
+          <th>Realizado</th>
+          <th>% meta</th>
+          <th>Status</th>
+          <th>Progresso</th>
+        </tr>
+      </thead>
+      <tbody id="rankBody"></tbody>
+    </table>
+  </div>
+
+  <div class="bottom-row">
+    <div class="chart-card">
+      <div class="chart-title">Distribuição por plano — Maio</div>
+      <div class="legend" id="pieLegend"></div>
+      <div style="position:relative; height:180px;">
+        <canvas id="chartPlano" role="img" aria-label="Gráfico de rosca com distribuição por tipo de plano">Distribuição por plano: Mensal, Trimestral, Anual, Semestral, Avulso.</canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Assinaturas por vendedor</div>
+      <div style="position:relative; height:210px;">
+        <canvas id="chartAssinaturas" role="img" aria-label="Número de assinaturas por vendedor em maio 2026">Assinaturas: Victor Alves 27, Victor F 26, Debora 21, Taynara 20, Steffany 12, Maria Laura 8, Pamela 3.</canvas>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:1.5rem;">
+    <div class="section-title">Conversão inside sales — D-14</div>
+    <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px;">
+      <div class="kpi">
+        <div class="kpi-label">Taynara Cristy</div>
+        <div class="kpi-value" style="font-size:18px;">21,95%</div>
+        <div class="kpi-sub">20 assinaturas</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Victor Ferreira</div>
+        <div class="kpi-value" style="font-size:18px;">21,75%</div>
+        <div class="kpi-sub">26 assinaturas</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Debora Gabriela</div>
+        <div class="kpi-value" style="font-size:18px;">28,94%</div>
+        <div class="kpi-sub">21 assinaturas</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Steffany Martins</div>
+        <div class="kpi-value" style="font-size:18px;">15,55%</div>
+        <div class="kpi-sub">12 assinaturas</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Victor Alves</div>
+        <div class="kpi-value" style="font-size:18px;">30,37%</div>
+        <div class="kpi-sub">27 assinaturas</div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const vendedores = [
+  { nome: 'Victor Alves',    meta: 30000,  real: 47212.08, assin: 27, ini: 'VA', cor: '#BA7517', jan: 18679.35, fev: 30230.20, mar: 30477.45, abr: 11217.75 },
+  { nome: 'Victor Ferreira', meta: 30000,  real: 34441.63, assin: 26, ini: 'VF', cor: '#378ADD', jan: 19806.94, fev: 20598.24, mar: 52858.70, abr: 37482.80 },
+  { nome: 'Taynara Cristy',  meta: 35000,  real: 33914.02, assin: 20, ini: 'TC', cor: '#7F77DD', jan: null,     fev: 24293.00, mar: 56129.90, abr: 25585.47 },
+  { nome: 'Debora Gabriela', meta: 25000,  real: 32503.08, assin: 21, ini: 'DG', cor: '#1D9E75', jan: 24681.40, fev: 39381.76, mar: 63235.31, abr: 40111.11 },
+  { nome: 'Steffany Martins',meta: 12500,  real: 15230.30, assin: 12, ini: 'SM', cor: '#D85A30', jan: 31418.95, fev: 26347.43, mar: 32775.10, abr: 25742.58 },
+  { nome: 'Maria Laura',     meta: 15000,  real: 7166.00,  assin: 8,  ini: 'ML', cor: '#5EA8A0', jan: null,     fev: null,     mar: null,     abr: null     },
+  { nome: 'Pamela Silva',    meta: 15000,  real: 1135.00,  assin: 3,  ini: 'PS', cor: '#888780', jan: null,     fev: null,     mar: null,     abr: null     },
+];
+
+const sorted = [...vendedores].sort((a,b) => b.real - a.real);
+const tbody = document.getElementById('rankBody');
+sorted.forEach((v,i) => {
+  const pct = (v.real / v.meta * 100).toFixed(1);
+  const status = pct >= 100 ? '<span class="badge badge-ok">Meta atingida</span>' : pct >= 75 ? '<span class="badge badge-warn">Em progresso</span>' : '<span class="badge badge-danger">Abaixo</span>';
+  const fillColor = pct >= 100 ? '#639922' : pct >= 75 ? '#BA7517' : '#E24B4A';
+  const barW = Math.min(parseFloat(pct), 100);
+  tbody.innerHTML += `<tr>
+    <td style="color:var(--color-text-secondary); font-size:12px;">${i+1}º</td>
+    <td><span class="avatar" style="background:${v.cor}22; color:${v.cor};">${v.ini}</span>${v.nome}</td>
+    <td style="color:var(--color-text-secondary);">R$${(v.meta/1000).toFixed(1)}k</td>
+    <td style="font-weight:500;">R$${v.real.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0})}</td>
+    <td style="font-weight:500; color:${fillColor};">${pct}%</td>
+    <td>${status}</td>
+    <td style="width:90px;"><div class="progress-bar"><div class="progress-fill" style="width:${barW}%; background:${fillColor};"></div></div></td>
+  </tr>`;
+});
+
+const isDark = matchMedia('(prefers-color-scheme: dark)').matches;
+const textCol = isDark ? '#888780' : '#5F5E5A';
+const gridCol = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
+
+new Chart(document.getElementById('chartVendedor'), {
+  type: 'bar',
+  data: {
+    labels: sorted.map(v => v.nome.split(' ')[0]),
+    datasets: [
+      { label: 'Realizado', data: sorted.map(v => v.real), backgroundColor: sorted.map(v => v.cor), borderRadius: 4 },
+      { label: 'Meta', data: sorted.map(v => v.meta), backgroundColor: 'rgba(180,178,169,0.35)', borderRadius: 4 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ' R$' + ctx.raw.toLocaleString('pt-BR') } } },
+    scales: {
+      x: { ticks: { color: textCol, font: { size: 11 } }, grid: { display: false } },
+      y: { ticks: { color: textCol, font: { size: 11 }, callback: v => 'R$' + (v/1000).toFixed(0)+'k' }, grid: { color: gridCol } }
+    }
+  }
+});
+
+// Evolução: apenas os 5 vendedores com histórico completo
+const vendedoresEvolucao = vendedores.filter(v => ['Debora Gabriela','Victor Ferreira','Steffany Martins','Taynara Cristy','Victor Alves'].includes(v.nome));
+new Chart(document.getElementById('chartEvolucao'), {
+  type: 'line',
+  data: {
+    labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai'],
+    datasets: vendedoresEvolucao.map(v => ({
+      label: v.nome.split(' ')[0],
+      data: [v.jan, v.fev, v.mar, v.abr, v.real],
+      borderColor: v.cor,
+      backgroundColor: v.cor + '18',
+      borderWidth: 2,
+      pointRadius: 4,
+      pointBackgroundColor: v.cor,
+      tension: 0.3,
+      spanGaps: true
+    }))
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': R$' + (ctx.raw||0).toLocaleString('pt-BR') } } },
+    scales: {
+      x: { ticks: { color: textCol, font: { size: 11 } }, grid: { display: false } },
+      y: { ticks: { color: textCol, font: { size: 11 }, callback: v => 'R$'+(v/1000).toFixed(0)+'k' }, grid: { color: gridCol } }
+    }
+  }
+});
+
+// Distribuição por plano — extraído das linhas da planilha Maio 2026
+const rawData = [
+  ['MENSAL'],['CRÉDITO AVULSO'],['MENSAL'],['MENSAL'],['MENSAL'],['TRIMESTRAL'],['TRIMESTRAL'],['MENSAL'],
+  ['TRIMESTRAL'],['MENSAL'],['SEMESTRAL'],['ANUAL'],['ANUAL'],['SEMESTRAL'],['MENSAL'],['MENSAL'],
+  ['ANUAL'],['TRIMESTRAL'],['TRIMESTRAL'],['TRIMESTRAL'],['ANUAL'],['TRIMESTRAL'],['MENSAL'],['MENSAL'],
+  ['MENSAL'],['TRIMESTRAL'],['MENSAL'],['MENSAL'],['ANUAL'],['MENSAL'],['TRIMESTRAL'],['MENSAL'],
+  ['TRIMESTRAL'],['CRÉDITO AVULSO'],['ANUAL'],['ANUAL'],['TRIMESTRAL'],['ANUAL'],['MENSAL'],['TRIMESTRAL'],
+  ['MENSAL'],['MENSAL'],['ANUAL'],['TRIMESTRAL'],['ANUAL'],['ANUAL'],['TRIMESTRAL'],['ANUAL'],['TRIMESTRAL'],
+  ['MENSAL'],['ANUAL'],['TRIMESTRAL'],['TRIMESTRAL'],['MENSAL'],['MENSAL'],['TRIMESTRAL'],['TRIMESTRAL'],
+  ['TRIMESTRAL'],['TRIMESTRAL'],['TRIMESTRAL'],['SEMESTRAL'],['ANUAL'],['TRIMESTRAL'],['MENSAL'],
+  ['TRIMESTRAL'],['MENSAL'],['MENSAL'],['MENSAL'],['MENSAL'],['TRIMESTRAL'],['TRIMESTRAL'],['MENSAL'],
+  ['MENSAL'],['MENSAL'],['TRIMESTRAL'],['TRIMESTRAL'],['SEMESTRAL'],['MENSAL'],['MENSAL'],['TRIMESTRAL'],
+  ['SEMESTRAL'],['ANUAL'],['MENSAL'],['MENSAL'],['SEMESTRAL'],['ANUAL'],['MENSAL'],['MENSAL'],['MENSAL'],
+  ['TRIMESTRAL'],['MENSAL'],['ANUAL'],['MENSAL'],['ANUAL'],['TRIMESTRAL'],['SEMESTRAL'],['MENSAL'],
+  ['SEMESTRAL'],['CRÉDITO AVULSO'],['MENSAL'],['TRIMESTRAL'],['MENSAL'],['ANUAL'],['MENSAL'],['MENSAL'],
+  ['MENSAL'],['TRIMESTRAL'],['MENSAL'],['MENSAL'],['SEMESTRAL'],['MENSAL'],['TRIMESTRAL'],['ANUAL'],
+  ['MENSAL'],['TRIMESTRAL'],['MENSAL'],['MENSAL'],['MENSAL'],['SEMESTRAL'],['MENSAL']
+];
+
+const planos = { 'Mensal': 0, 'Trimestral': 0, 'Anual': 0, 'Semestral': 0, 'Avulso': 0 };
+rawData.forEach(([p]) => {
+  const k = p.includes('ANUAL') ? 'Anual' : p.includes('TRIMESTRAL') ? 'Trimestral' : p.includes('MENSAL') ? 'Mensal' : p.includes('SEMESTRAL') ? 'Semestral' : 'Avulso';
+  planos[k]++;
+});
+const planoLabels = Object.keys(planos);
+const planoData = Object.values(planos);
+const planoCores = ['#378ADD','#1D9E75','#7F77DD','#D85A30','#888780'];
+
+const pieLegend = document.getElementById('pieLegend');
+planoLabels.forEach((l,i) => {
+  pieLegend.innerHTML += `<span><span class="legend-dot" style="background:${planoCores[i]}"></span>${l} (${planoData[i]})</span>`;
+});
+
+new Chart(document.getElementById('chartPlano'), {
+  type: 'doughnut',
+  data: { labels: planoLabels, datasets: [{ data: planoData, backgroundColor: planoCores, borderWidth: 0, hoverOffset: 4 }] },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw} assinaturas` } } }, cutout: '60%' }
+});
+
+new Chart(document.getElementById('chartAssinaturas'), {
+  type: 'bar',
+  data: {
+    labels: vendedores.map(v => v.nome.split(' ')[0]),
+    datasets: [{ label: 'Assinaturas', data: vendedores.map(v => v.assin), backgroundColor: vendedores.map(v => v.cor), borderRadius: 4 }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: textCol, font: { size: 11 } }, grid: { color: gridCol } },
+      y: { ticks: { color: textCol, font: { size: 11 } }, grid: { display: false } }
+    }
+  }
+});
+</script>
